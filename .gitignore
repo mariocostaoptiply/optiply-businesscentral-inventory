@@ -1,0 +1,32 @@
+# ──────────────────────────────
+# Business Central AL Extension
+# ──────────────────────────────
+
+# VS Code settings
+.vscode/
+
+# AL build and dependency folders
+.alpackages/
+.snapshots/
+.deleted/
+
+# Ignore project-level junk
+.ignore/
+*.code-workspace
+
+# Ignore compiled extensions and packages
+*.app
+*.zip
+*.bak
+*.tmp
+*.vsix
+*.dll
+*.exe
+*.log
+
+# System files
+.DS_Store
+Thumbs.db
+
+# GitHub config caches (if auto-created)
+.github/

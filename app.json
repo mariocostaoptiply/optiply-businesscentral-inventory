@@ -1,0 +1,33 @@
+{
+  "id": "3c4d4be5-ab78-4f67-a3c4-09903fd8754d",
+  "name": "Item Variant Stock",
+  "publisher": "Optiply Publisher",
+  "version": "1.0.0.0",
+  "brief": "",
+  "description": "This extension exposes a page for a Custom API table with Stocks by item variant",
+  "privacyStatement": "",
+  "EULA": "",
+  "help": "",
+  "url": "",
+  "logo": "",
+  "dependencies": [
+  ],
+  "screenshots": [],
+  "platform": "1.0.0.0",
+  "application": "27.0.38460.40242",
+  "idRanges": [
+    {
+      "from": 50100,
+      "to": 50149
+    }
+  ],
+  "resourceExposurePolicy": {
+    "allowDebugging": true,
+    "allowDownloadingSource": true,
+    "includeSourceInSymbolFile": true
+  },
+  "runtime": "16.0",
+  "features": [
+    "NoImplicitWith"
+  ]
+}

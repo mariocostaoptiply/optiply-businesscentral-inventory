@@ -1,0 +1,122 @@
+namespace Hotglue.BusinessCentral.Inventory;
+
+using Microsoft.Inventory.Ledger;
+
+/// <summary>
+/// API page that exposes calculated inventory quantities per Item, Variant, and Location.
+/// </summary>
+/// <remarks>
+/// This page serves as an integration endpoint to retrieve current stock information
+/// grouped by Item, Variant, and Location.  
+/// It builds its dataset dynamically using the <c>Last Entry By IVL</c> query and
+/// the <c>Stock By IVL</c> FlowField from the "Item Ledger Entry" table.  
+/// The data is populated into the temporary table <c>Temp Stock by IVL</c>
+/// and made available through an OData/REST API endpoint for external integrations
+/// such as Hotglue.
+/// </remarks>
+page 50100 "Inventory Location Query"
+{
+
+    Caption = 'Inventory By Location    ';
+    SourceTable = "Temp Stock by IVL";
+    ApplicationArea = All;
+    UsageCategory = Lists;
+
+    PageType = API;
+    APIPublisher = 'hotglue';
+    APIGroup = 'integration';
+    APIVersion = 'v1.0';
+    EntityName = 'inventoryByLocation';
+    EntitySetName = 'inventoryByLocations';
+    DelayedInsert = true;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Group)
+            {
+                /// <summary>
+                /// System identifier (GUID) of the parent item.
+                /// </summary>
+                field(ItemId; Rec."Parent Id")
+                {
+                    ApplicationArea = All;
+                }
+
+                /// <summary>
+                /// Item number of the product.
+                /// </summary>
+                field(ItemNo; Rec."Item No.")
+                {
+                    ApplicationArea = All;
+                }
+
+                /// <summary>
+                /// System identifier (GUID) of the variant.
+                /// </summary>
+                field(VariantId; Rec."Variant Id")
+                {
+                    ApplicationArea = All;
+                }
+
+                /// <summary>
+                /// Variant code of the product.
+                /// </summary>
+                field(VariantCode; Rec."Variant Code")
+                {
+                    ApplicationArea = All;
+                }
+
+                /// <summary>
+                /// Code of the warehouse or location where the item is stored.
+                /// </summary>
+                field(LocationCode; Rec."Location Code")
+                {
+                    ApplicationArea = All;
+                }
+
+                /// <summary>
+                /// Date and time when the source ledger entry was last modified.
+                /// </summary>
+                field(SystemModifiedAt; Rec."SystemModifiedAt")
+                {
+                    ApplicationArea = All;
+                }
+
+                /// <summary>
+                /// Calculated inventory quantity for this Item/Variant/Location combination.
+                /// </summary>
+                field(Inventory; Rec."Inventory")
+                {
+                    ApplicationArea = All;
+                }
+            }
+        }
+    }
+
+    trigger OnOpenPage()
+    var
+        QLastEntry: Query "Last Entry By IVL";
+        ItemLedger: Record "Item Ledger Entry";
+    begin
+        if QLastEntry.Open() then begin
+            while QLastEntry.Read() do begin
+                if ItemLedger.Get(QLastEntry.LastEntryNo) then begin
+                    ItemLedger.CalcFields("Stock By IVL"); // Calc Flowfield for this Entry
+                    Rec.Init();
+                    Rec.RowNo += 1;
+                    Rec."Parent Id" := QLastEntry.ItemId;
+                    Rec."Item No." := QLastEntry.ItemNo;
+                    Rec."Variant Id" := QLastEntry.VariantId;
+                    Rec."Variant Code" := QLastEntry.VariantCode;
+                    Rec."Location Code" := QLastEntry.LocationCode;
+                    Rec."SystemModifiedAt" := ItemLedger."SystemModifiedAt";
+                    Rec."Inventory" := ItemLedger."Stock By IVL";
+                    Rec.Insert();
+                end;
+            end;
+            QLastEntry.Close();
+        end;
+    end;
+}
