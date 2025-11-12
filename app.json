@@ -1,20 +1,20 @@
 {
   "id": "3c4d4be5-ab78-4f67-a3c4-09903fd8754d",
-  "name": "Item Variant Stock",
-  "publisher": "Optiply Publisher",
+  "name": "Hotglue Business Central Integration",
+  "publisher": "Hotglue Open Source",
   "version": "1.0.0.0",
-  "brief": "",
-  "description": "This extension exposes a page for a Custom API table with Stocks by item variant",
+
+  "brief": "Provides extended APIs and data endpoints for integrating Microsoft Dynamics 365 Business Central with external platforms.",
+  "description": "This open-source extension enables advanced integrations between Microsoft Dynamics 365 Business Central and external systems such as Hotglue ETL pipelines. It provides a modular architecture for exposing additional APIs, queries, and tables — starting with inventory data (Items, Variants, and Locations) and designed to support future extensions for sales, purchasing, and other business domains.",
   "privacyStatement": "",
   "EULA": "",
   "help": "",
   "url": "",
   "logo": "",
-  "dependencies": [
-  ],
+  "dependencies": [],
   "screenshots": [],
-  "platform": "1.0.0.0",
-  "application": "27.0.38460.40242",
+  "platform": "27.0.0.0",
+  "application": "27.0.0.0",
   "idRanges": [
     {
       "from": 50100,
@@ -26,7 +26,6 @@
     "allowDownloadingSource": true,
     "includeSourceInSymbolFile": true
   },
-  "runtime": "16.0",
   "features": [
     "NoImplicitWith"
   ]

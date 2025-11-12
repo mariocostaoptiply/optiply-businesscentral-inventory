@@ -1,3 +1,10 @@
+/// <summary>
+/// Implements the API objects and logic for the Hotglue ↔ Business Central integration.
+/// </summary>
+/// <remarks>
+/// This module exposes calculated inventory data per item, variant, and location.
+/// Includes FlowField extensions, queries, and API pages for synchronization with Hotglue ETL.
+/// </remarks>
 namespace Hotglue.BusinessCentral.Inventory;
 
 using Microsoft.Inventory.Ledger;
@@ -95,6 +102,17 @@ page 50100 "Inventory Location Query"
         }
     }
 
+    /// <summary>
+    /// Trigger executed when the API page is opened.  
+    /// It populates the temporary table <c>Temp Stock by IVL</c> with
+    /// the latest inventory data per Item, Variant, and Location.
+    /// </summary>
+    /// <remarks>
+    /// This trigger runs the <c>Last Entry By IVL</c> query to find the most recent
+    /// item ledger entry for each Item/Variant/Location combination.  
+    /// It then retrieves the corresponding record, calculates the <c>Stock By IVL</c>
+    /// FlowField, and inserts the aggregated result into the temporary table.
+    /// </remarks>
     trigger OnOpenPage()
     var
         QLastEntry: Query "Last Entry By IVL";
