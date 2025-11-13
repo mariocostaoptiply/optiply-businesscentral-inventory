@@ -30,10 +30,14 @@ jobs:
           $securePass = ConvertTo-SecureString $passwordPlain -AsPlainText -Force
           $credential = New-Object System.Management.Automation.PSCredential($username, $securePass)
 
+          $imageName = New-BcImage `
+            -artifactUrl (Get-BcArtifactUrl -type Sandbox -version 27.1 -country w1) `
+            -includePlatform `
+            -imageName "bcimage:27"
+
           New-BcContainer -accept_eula `
-            -accept_outdated `
             -containerName "buildcontainer" `
-            -imageName "mcr.microsoft.com/businesscentral/sandbox:ltsc2022" `
+            -imageName "bcimage:27" `
             -auth NavUserPassword `
             -credential $credential `
             -updateHosts `
