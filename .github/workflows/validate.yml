@@ -18,45 +18,38 @@ jobs:
       - name: Build AL Project
         shell: pwsh
         run: |
-          # Always install the newest BcContainerHelper (needed on GitHub runners)
-          Install-Module BcContainerHelper -Force -AllowClobber
-          Import-Module BcContainerHelper
-
           # Load credentials
           $username = "${{ secrets.BC_USERNAME }}"
           $passwordPlain = "${{ secrets.BC_PASSWORD }}"
 
           if (-not $username -or -not $passwordPlain) {
-            throw "BC_USERNAME or BC_PASSWORD is empty — Check your GitHub Secrets."
+            throw "BC_USERNAME or BC_PASSWORD is empty."
           }
 
           $securePass = ConvertTo-SecureString $passwordPlain -AsPlainText -Force
           $credential = New-Object System.Management.Automation.PSCredential($username, $securePass)
 
-          # Fetch artifact URL
+          # Artifact URL for BC 27
           $artifactUrl = Get-BcArtifactUrl -type Sandbox -version 27.1 -country w1
           Write-Host "Using artifact: $artifactUrl"
 
-          # Build image from artifacts (this works on GitHub runners)
-          $imageName = New-BcImage `
-            -artifactUrl $artifactUrl `
-            -imageName "bcimage:27" `
-            -includePlatform
-
-          # Create container
+          # Create container directly from the artifact
           New-BcContainer -accept_eula `
+            -accept_outdated `
             -containerName "buildcontainer" `
-            -imageName "bcimage:27" `
+            -artifactUrl $artifactUrl `
             -auth NavUserPassword `
             -credential $credential `
             -updateHosts `
-            -doNotExportObjectsToText
+            -doNotExportObjectsToText `
+            -shortcuts None
 
-          # Compile the AL extension
+          # Compile AL app
           Compile-AppInBCContainer `
             -containerName buildcontainer `
             -appProjectFolder "$PWD/app" `
-            -appOutputFolder "$PWD/output"
+            -appOutputFolder "$PWD/output" `
+            -ruleset "None"
 
           Write-Host "✔ Build completed successfully"
 
