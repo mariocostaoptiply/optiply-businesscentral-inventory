@@ -21,18 +21,28 @@ jobs:
       - name: Build AL Project
         shell: pwsh
         run: |
+          # Load credentials from GitHub Secrets
+          $user = "${{ secrets.BC_USERNAME }}"
+          $pass = ConvertTo-SecureString "${{ secrets.BC_PASSWORD }}" -AsPlainText -Force
+          $credential = New-Object System.Management.Automation.PSCredential($user, $pass)
+
+          # Create BC container
           New-BcContainer -accept_eula `
             -accept_outdated `
             -containerName "build" `
             -imageName "mcr.microsoft.com/businesscentral/sandbox:ltsc2022" `
             -auth NavUserPassword `
+            -credential $credential `
             -updateHosts `
             -doNotExportObjectsToText
 
+          # Compile AL project inside the container
           Compile-AppInBCContainer `
             -containerName build `
-            -appProjectFolder "$PWD/app"
+            -appProjectFolder "$PWD/app" `
+            -appOutputFolder "$PWD/output"
 
+          # Copy artifact (.app file) to output folder
           Copy-BcContainerArtifact `
             -containerName build `
             -artifactPath "$PWD/output"
