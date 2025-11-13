@@ -18,6 +18,18 @@ jobs:
       - name: Build the .app package
         shell: pwsh
         run: |
+
+          # Load credentials
+          $username = "${{ secrets.BC_USERNAME }}"
+          $passwordPlain = "${{ secrets.BC_PASSWORD }}"
+
+          if (-not $username -or -not $passwordPlain) {
+            throw "BC_USERNAME or BC_PASSWORD is empty — Check your GitHub Secrets."
+          }
+
+          $securePass = ConvertTo-SecureString $passwordPlain -AsPlainText -Force
+          $credential = New-Object System.Management.Automation.PSCredential($username, $securePass)
+
           New-BcContainer -accept_eula `
             -accept_outdated `
             -containerName "buildcontainer" `
