@@ -1,0 +1,29 @@
+name: Release Extension
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install BcContainerHelper
+        run: Install-Module BcContainerHelper -Force
+        shell: pwsh
+
+      - name: Build App
+        shell: pwsh
+        run: |
+          New-BcContainer -accept_eula -accept_outdated -containerName "release" -imageName "mcr.microsoft.com/businesscentral/sandbox:latest" -auth NavUserPassword -updateHosts
+          Compile-AppInBCContainer -containerName release -appProjectFolder "$PWD/app"
+          Copy-BcContainerArtifact -containerName release -artifactPath "$PWD/output"
+
+      - name: Publish Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: output/*.app

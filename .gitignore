@@ -4,6 +4,7 @@
 
 # VS Code settings
 .vscode/
+.deleted/
 
 # AL build and dependency folders
 .alpackages/
@@ -32,7 +33,7 @@ Thumbs.db
 *.tmp
 
 # GitHub config caches (if auto-created)
-.github/
+#.github/
 
 # Build artifacts
 output/
