@@ -2,39 +2,35 @@
 # Business Central AL Extension
 # ──────────────────────────────
 
-# VS Code settings
+# VS Code workspace settings
 .vscode/
 .deleted/
 
-# AL build and dependency folders
+# Build and dependency folders
 .alpackages/
+.alcache/
+output/
+
+# AL compiled packages (NEVER commit)
 *.app
+*.zip
+*.vsix
+
+# Project temporary files
 *.snap
-*.code-workspace
+*.bak
+*.tmp
+*.log
 
 # Ignore project-level junk
 .ignore/
 *.code-workspace
 
-# Ignore compiled extensions and packages
-*.app
-*.zip
-*.bak
-*.tmp
-*.vsix
-*.dll
-*.exe
-*.log
-
 # System files
 Thumbs.db
 .DS_Store
-*.log
-*.tmp
 
-# GitHub config caches (if auto-created)
-#.github/
-
-# Build artifacts
-output/
-.alcache/
+# Windows, macOS junk
+*.lnk
+Icon?
+ehthumbs.db

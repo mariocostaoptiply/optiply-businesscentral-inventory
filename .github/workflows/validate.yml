@@ -15,6 +15,22 @@ jobs:
         shell: pwsh
         run: Install-Module BcContainerHelper -Force -Scope CurrentUser
 
+      - name: Build the .app package
+        shell: pwsh
+        run: |
+          New-BcContainer -accept_eula `
+            -accept_outdated `
+            -containerName "buildcontainer" `
+            -imageName "mcr.microsoft.com/businesscentral/sandbox:ltsc2022" `
+            -auth NavUserPassword `
+            -updateHosts `
+            -doNotExportObjectsToText
+
+          Compile-AppInBCContainer `
+            -containerName buildcontainer `
+            -appProjectFolder "$PWD/app" `
+            -appOutputFolder "$PWD/output"
+
       - name: Run AL Validation
         shell: pwsh
         run: |
