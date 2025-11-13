@@ -15,9 +15,12 @@ jobs:
         shell: pwsh
         run: Install-Module BcContainerHelper -Force -Scope CurrentUser
 
-      - name: Build the .app package
+      - name: Build AL Project
         shell: pwsh
         run: |
+          # Always install the newest BcContainerHelper (needed on GitHub runners)
+          Install-Module BcContainerHelper -Force -AllowClobber
+          Import-Module BcContainerHelper
 
           # Load credentials
           $username = "${{ secrets.BC_USERNAME }}"
@@ -30,11 +33,17 @@ jobs:
           $securePass = ConvertTo-SecureString $passwordPlain -AsPlainText -Force
           $credential = New-Object System.Management.Automation.PSCredential($username, $securePass)
 
-          $imageName = New-BcImage `
-            -artifactUrl (Get-BcArtifactUrl -type Sandbox -version 27.1 -country w1) `
-            -includePlatform `
-            -imageName "bcimage:27"
+          # Fetch artifact URL
+          $artifactUrl = Get-BcArtifactUrl -type Sandbox -version 27.1 -country w1
+          Write-Host "Using artifact: $artifactUrl"
 
+          # Build image from artifacts (this works on GitHub runners)
+          $imageName = New-BcImage `
+            -artifactUrl $artifactUrl `
+            -imageName "bcimage:27" `
+            -includePlatform
+
+          # Create container
           New-BcContainer -accept_eula `
             -containerName "buildcontainer" `
             -imageName "bcimage:27" `
@@ -43,10 +52,14 @@ jobs:
             -updateHosts `
             -doNotExportObjectsToText
 
+          # Compile the AL extension
           Compile-AppInBCContainer `
             -containerName buildcontainer `
             -appProjectFolder "$PWD/app" `
             -appOutputFolder "$PWD/output"
+
+          Write-Host "✔ Build completed successfully"
+
 
       - name: Run AL Validation
         shell: pwsh
