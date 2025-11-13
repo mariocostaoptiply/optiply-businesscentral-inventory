@@ -21,19 +21,14 @@ jobs:
           # Load credentials
           $username = "${{ secrets.BC_USERNAME }}"
           $passwordPlain = "${{ secrets.BC_PASSWORD }}"
-
-          if (-not $username -or -not $passwordPlain) {
-            throw "BC_USERNAME or BC_PASSWORD is empty."
-          }
-
           $securePass = ConvertTo-SecureString $passwordPlain -AsPlainText -Force
           $credential = New-Object System.Management.Automation.PSCredential($username, $securePass)
 
-          # Artifact URL for BC 27
+          # Get BC artifact
           $artifactUrl = Get-BcArtifactUrl -type Sandbox -version 27.1 -country w1
           Write-Host "Using artifact: $artifactUrl"
 
-          # Create container directly from the artifact
+          # Create container
           New-BcContainer -accept_eula `
             -accept_outdated `
             -containerName "buildcontainer" `
@@ -44,14 +39,21 @@ jobs:
             -doNotExportObjectsToText `
             -shortcuts None
 
-          # Compile AL app
+          # --- FIX: Copy project to a shared folder ---
+          $shared = "C:\Run\my\app"
+          New-Item -ItemType Directory -Force -Path $shared | Out-Null
+          Copy-Item -Path "$PWD/app/*" -Destination $shared -Recurse -Force
+
+          Write-Host "App copied to container-shared folder: $shared"
+
+          # Compile from shared folder
           Compile-AppInBCContainer `
             -containerName buildcontainer `
-            -appProjectFolder "$PWD/app" `
-            -appOutputFolder "$PWD/output" `
-            -ruleset "None"
+            -appProjectFolder $shared `
+            -appOutputFolder "$PWD/output"
 
-          Write-Host "✔ Build completed successfully"
+          Write-Host "✔ Build completed!"
+
 
 
       - name: Run AL Validation
