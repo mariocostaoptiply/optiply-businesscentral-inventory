@@ -1,0 +1,42 @@
+namespace ALProject.ALProject2;
+
+
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Ledger;
+
+tableextension 50100 "Item Variant Stock Ext" extends "Item Variant"
+{
+    fields
+    {
+        field(50100; "Variant Stock"; Decimal)
+        {
+            Caption = 'Variant Stock';
+            FieldClass = FlowField;
+            CalcFormula = sum("Item Ledger Entry".Quantity WHERE("Item No." = FIELD("Item No."),
+                                                                "Variant Code" = FIELD(Code)));
+            Editable = false;
+        }
+        // This calculates the stock for the parent (blank variant)
+        field(50101; "Parent Stock"; Decimal)
+        {
+            Caption = 'Parent Stock';
+            FieldClass = FlowField;
+            // "Variant Code" = CONST('') -> Hard-coded to find the blank variant
+            CalcFormula = sum("Item Ledger Entry".Quantity WHERE("Item No." = FIELD("Item No."),
+                                                                "Variant Code" = CONST('')));
+            Editable = false;
+        }
+        field(50102; "Last Inventory Posting Date"; Date)
+        {
+            Caption = 'Last Inventory Posting Date';
+            FieldClass = FlowField;
+            // This looks at all ledger entries for this variant
+            // and finds the most recent (max) "Posting Date".
+            CalcFormula = max("Item Ledger Entry"."Posting Date" WHERE("Item No." = FIELD("Item No."),
+                                                                        "Variant Code" = FIELD(Code)));
+            Editable = false;
+        }
+    }
+}
+
+

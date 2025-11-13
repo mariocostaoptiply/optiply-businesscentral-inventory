@@ -7,8 +7,9 @@
 
 # AL build and dependency folders
 .alpackages/
-.snapshots/
-.deleted/
+*.app
+*.snap
+*.code-workspace
 
 # Ignore project-level junk
 .ignore/
@@ -25,8 +26,14 @@
 *.log
 
 # System files
-.DS_Store
 Thumbs.db
+.DS_Store
+*.log
+*.tmp
 
 # GitHub config caches (if auto-created)
 .github/
+
+# Build artifacts
+output/
+.alcache/

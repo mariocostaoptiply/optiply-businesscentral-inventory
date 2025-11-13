@@ -1,0 +1,114 @@
+namespace ALProject.ALProject2;
+
+
+using Microsoft.Inventory.Item;
+
+page 50100 ItemVariantStockAPI
+{
+    APIGroup = 'app1';
+    APIPublisher = 'default';
+    APIVersion = 'v1.0';
+    ApplicationArea = All;
+    Caption = 'itemVariantStockAPI';
+    DelayedInsert = true;
+    EntityName = 'itemVariantStock';
+    EntitySetName = 'itemVariantStock';
+    PageType = API;
+    SourceTable = "Item Variant";
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(General)
+            {
+                // --- Fields from Item Variant (Table 5401) ---
+                field(itemVariantSytemId; Rec.SystemId)
+                {
+                    Caption = 'Id';
+                }
+                field(itemNo; Rec."Item No.")
+                {
+                    Caption = 'Item No.';
+                }
+                field("code"; Rec."Code")
+                {
+                    Caption = 'Code';
+                }
+                field(description; Rec.Description)
+                {
+                    Caption = 'Description';
+                }
+
+                // --- Fields from our Table Extension (Table 50102) ---
+                field(variantStock; Rec."Variant Stock")
+                {
+                    Caption = 'Variant Stock';
+                }
+                field(parentStock; Rec."Parent Stock")
+                {
+                    Caption = 'Parent Stock';
+                }
+                field(lastInventoryPostingDate; Rec."Last Inventory Posting Date")
+                {
+                    Caption = 'Last Inventory Posting Date';
+                }
+
+                // --- Fields to be populated from the item table (Table 27) ---
+                field(itemSystemId; ItemSystemId)
+                {
+                    Caption = 'Item Id';
+                }
+                field(sku; Sku)
+                {
+                    Caption = 'SKU';
+                }
+                field(baseUnitOfMeasure; BaseUOM)
+                {
+                    Caption = 'Base Unit of Measure';
+                }
+                field(price; Price)
+                {
+                    Caption = 'Price';
+                }
+
+            }
+        }
+    }
+
+
+    // --- Global Variables ---
+    var
+        ItemRec: Record Item;
+        Sku: Text[50];
+        BaseUOM: Code[10];
+        Price: Decimal;
+        ItemSystemId: Guid;
+
+    // --- Triggers ---
+    // This trigger runs for every single record before it is sent.
+    // We use it to get data from parent "Item" table record.
+    trigger OnAfterGetRecord()
+    begin
+        // Clear variables for each new record
+        Sku := '';
+        BaseUOM := '';
+        Price := 0;
+        Clear(ItemSystemId);
+
+        // 1. Populate SKU
+        // Concatenate the Item No. and Variant Code.
+        Sku := Format(Rec."Item No.") + '-' + Format(Rec.Code);
+
+        // 2. Get the parent Item record
+        if ItemRec.Get(Rec."Item No.") then begin
+            // 3. Grab the fields we need from the Item table
+            BaseUOM := ItemRec."Base Unit of Measure";
+
+            // Note: "Unit Price" is the standard field name on the Item table.
+            Price := ItemRec."Unit Price";
+
+            ItemSystemId := ItemRec.SystemId;
+        end;
+    end;
+}

@@ -1,0 +1,131 @@
+namespace ALProject.ALProject2;
+
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Ledger;
+
+table 50100 "Item Variant Stock"
+{
+    Caption = 'Item Variant Stock';
+    DataCaptionFields = "Item No.", "Variant Code", "Variant Name";
+    DataClassification = CustomerContent;
+
+    fields
+    {
+        // --- Primary Key Fields ---
+        field(2; "Item No."; Code[20])
+        {
+            Caption = 'Item No.';
+            TableRelation = Item;
+            NotBlank = true;
+        }
+        field(3; "Variant Code"; Code[10])
+        {
+            Caption = 'Variant Code';
+            // MODIFICADO: Removido 'NotBlank = true' para permitir itens sem variantes
+            // Removida TableRelation para evitar problemas de validação em branco
+        }
+
+        // --- Calculated/Sourced Fields ---
+        field(4; "Variant Name"; Text[100])
+        {
+            Caption = 'Variant Name';
+        }
+        field(5; "SKU"; Text[50])
+        {
+            Caption = 'SKU';
+        }
+        field(6; "Price"; Decimal)
+        {
+            Caption = 'Price';
+        }
+        // REMOVIDO: Campo "Parent Stock" (Field 7)
+        // O campo "Variant Stock" (Field 9) fará este trabalho.
+
+        field(8; "Base Unit of Measure"; Code[10])
+        {
+            Caption = 'Base Unit of Measure';
+        }
+        field(9; "Variant Stock"; Decimal)
+        {
+            Caption = 'Stock'; // Mudei o Caption para ser mais genérico
+            FieldClass = FlowField;
+            // Esta fórmula AGORA funciona para AMBOS:
+            // 1. Se "Variant Code" = 'ABC', ele soma o stock da variante.
+            // 2. Se "Variant Code" = '', ele soma o stock do item (pai).
+            CalcFormula = sum("Item Ledger Entry".Quantity WHERE("Item No." = FIELD("Item No."),
+                                                                "Variant Code" = FIELD("Variant Code")));
+            Editable = false;
+        }
+        field(10; "Status"; Option)
+        {
+            Caption = 'Status';
+            OptionMembers = "Enabled","Disabled";
+            DataClassification = CustomerContent;
+        }
+    }
+
+    keys
+    {
+        key(PK; "Item No.", "Variant Code")
+        {
+            Clustered = true;
+        }
+    }
+
+    // --- PROCEDURE ATUALIZADA ---
+    procedure CalcFields()
+    var
+        ItemRec: Record Item;
+        ItemVariantRec: Record "Item Variant";
+        VariantMandatory: Boolean;
+    begin
+        // 1. Obter o registo do Item (sempre necessário)
+        if not ItemRec.Get("Item No.") then begin
+            "Variant Name" := 'Item not found';
+            "SKU" := '';
+            "Status" := "Status"::Disabled; // Se o item não existe, desativar
+            exit;
+        end;
+
+        // 2. Preencher campos do Item
+        "Base Unit of Measure" := ItemRec."Base Unit of Measure";
+        if "Price" = 0 then
+            "Price" := ItemRec."Unit Price";
+
+        // 3. Obter o valor do seu campo "Variant Mandatory if Exists"
+        //    Lógica corrigida para lidar com "Option"
+        if ItemRec."Variant Mandatory if Exists" = ItemRec."Variant Mandatory if Exists"::Yes then
+            VariantMandatory := true
+        else
+            VariantMandatory := false;
+
+        // NOTA: Se o "Default" significar "No", pode simplificar para:
+        // VariantMandatory := (ItemRec."Variant Mandatory if Exists" = ItemRec."Variant Mandatory if Exists"::Yes);
+
+
+        // 4. Lidar com os dois casos
+        if "Variant Code" = '' then begin
+            // CASO A: É um registo de Item (pai)
+            "Variant Name" := ItemRec.Description;
+            "SKU" := Format("Item No.");
+
+            // AQUI ESTÁ A LÓGICA DO STATUS:
+            // Se as variantes forem mandatórias, desativar este registo "pai"
+            if VariantMandatory then
+                "Status" := "Status"::Disabled
+            else
+                "Status" := "Status"::Enabled;
+
+        end
+        else begin
+            // CASO B: É um registo de Variante
+            "SKU" := Format("Item No.") + '-' + Format("Variant Code");
+            "Status" := "Status"::Enabled; // Variantes estão sempre ativas
+
+            if ItemVariantRec.Get("Item No.", "Variant Code") then
+                "Variant Name" := ItemVariantRec.Description
+            else
+                "Variant Name" := 'Variant not found';
+        end;
+    end;
+}

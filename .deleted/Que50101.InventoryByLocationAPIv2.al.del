@@ -1,0 +1,83 @@
+namespace ALProject.ALProject2;
+
+using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Item;
+
+query 50101 "Inventory By Location API v2"
+{
+    APIGroup = 'api';
+    APIPublisher = 'default';
+    APIVersion = 'v2.0';
+    EntityName = 'inventoryByLocationv2';
+    EntitySetName = 'inventoryByLocationv2';
+    QueryType = API;
+
+    elements
+    {
+        dataitem(entryGroup; "Item Ledger Entry")
+        {
+
+
+            column(itemNo; "Item No.") { Caption = 'Item No.'; }
+            column(variantCode; "Variant Code") { Caption = 'Variant Code'; }
+            column(locationCode; "Location Code") { Caption = 'Location Code'; }
+
+
+            column(quantity; "Quantity")
+            {
+                Caption = 'Total Quantity';
+                Method = Sum;
+            }
+
+            dataitem(entryNoGroup; "Item Ledger Entry")
+            {
+                DataItemLink = "Item No." = entryGroup."Item No.",
+                            "Variant Code" = entryGroup."Variant Code",
+                            "Location Code" = entryGroup."Location Code";
+
+                column(entryNo; "Entry No.") { Method = Max; Caption = 'Latest Entry No'; }
+
+                dataitem(lastEntry; "Item Ledger Entry")
+                {
+
+                    DataItemLink = "Entry No." = entryNoGroup."Entry No.";
+
+                    SqlJoinType = InnerJoin;
+
+                    column(LatestTimestamp; SystemCreatedAt) { }
+                    column(LastQuantity; Quantity) { }
+
+                    /*
+                    // Join com Item
+                    dataitem(item; Item)
+                    {
+                        DataItemLink = "No." = lastEntry."Item No.";
+
+                        column(ItemId; SystemId)
+                        {
+                            Caption = 'Item Id';
+                        }
+
+                        column(Description; Description)
+                        {
+                            Caption = 'Item Description';
+                        }
+
+                        // Join com Variant
+                        dataitem(itemVariant; "Item Variant")
+                        {
+                            DataItemLink = "Item No." = lastEntry."Item No.",
+                                        Code = lastEntry."Variant Code";
+
+                            column(VariantId; SystemId)
+                            {
+                                Caption = 'Variant Id';
+                            }
+                        }
+                    }
+                }*/
+                }
+            }
+        }
+    }
+}

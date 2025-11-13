@@ -1,0 +1,108 @@
+namespace ALProject.ALProject2;
+
+
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Ledger;
+
+page 50102 "Item Variant Stock V2 List"
+{
+    Caption = 'Item Variant Stock V2';
+    PageType = List;
+    SourceTable = "Item Variant Stock";
+    ApplicationArea = All;
+    UsageCategory = Lists;
+    //DataClassification = CustomerContent;
+
+    layout
+    {
+        area(content)
+        {
+            repeater(Group)
+            {
+                field("Item No."; Rec."Item No.") { ApplicationArea = All; }
+                field("Variant Code"; Rec."Variant Code") { ApplicationArea = All; }
+                field("Variant Name"; Rec."Variant Name") { ApplicationArea = All; }
+                field("SKU"; Rec."SKU") { ApplicationArea = All; }
+                field("Stock"; Rec."Variant Stock")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Stock';
+                }
+
+                // --- CAMPO ADICIONADO ---
+                field("Status"; Rec."Status") { ApplicationArea = All; }
+
+                field("Price"; Rec."Price") { ApplicationArea = All; }
+                field("Base Unit of Measure"; Rec."Base Unit of Measure") { ApplicationArea = All; }
+            }
+        }
+    }
+
+    actions
+    {
+        area(processing)
+        {
+            // Mudei o nome desta ação para ser mais claro
+            action(RefreshView)
+            {
+                Caption = 'Refresh View';
+                Image = Refresh;
+                ApplicationArea = All;
+                Tooltip = 'Reloads the current view and recalculates FlowFields.';
+                trigger OnAction()
+                begin
+                    // Refresh the page (re-reads records and recalculates FlowFields/CalcFields)
+                    CurrPage.Update();
+                    Message('Refreshed Item Variant Stock view.');
+                end;
+            }
+
+            action(OpenItem)
+            {
+                Caption = 'Open Item';
+                ApplicationArea = All;
+                trigger OnAction()
+                var
+                    ItemRec: Record Item;
+                begin
+                    if Rec."Item No." <> '' then
+                        if ItemRec.Get(Rec."Item No.") then
+                            PAGE.Run(PAGE::"Item Card", ItemRec);
+                end;
+            }
+
+            // Esta é uma nova Ação para re-popular a tabela
+            action(RunPopulateCodeunit)
+            {
+                Caption = 'Update Table from Items';
+                Tooltip = 'Deletes all current records and repopulates the table with the latest data from Items and Item Variants.';
+                Image = Process;
+                ApplicationArea = All;
+
+                trigger OnAction()
+                var
+                    Populator: Codeunit "Populate Variant Stock Table";
+                begin
+                    // Pede confirmação ao utilizador
+                    if not Confirm('This will delete all existing data and re-populate the table. This may take a moment. Continue?', false) then
+                        exit;
+
+                    // Executa a função principal do codeunit
+                    Populator.PopulateTable();
+
+                    // Atualiza a página para mostrar os novos dados
+                    CurrPage.Update(true);
+                    Message('Table has been repopulated.');
+                end;
+            }
+        }
+    }
+
+    trigger OnOpenPage()
+    begin
+        // Helpful for debugging: show number of records when opening
+        // Comment out if noisy in production.
+        // Message('%1 item variant stock records', Rec.Count());
+    end;
+}
+

@@ -1,0 +1,78 @@
+namespace ALProject.ALProject2;
+
+using Microsoft.Purchases.Document;
+
+page 50103 "Purchase Orders"
+{
+
+    PageType = API;
+
+    // Define a new URL endpoint
+
+    APIGroup = 'api';
+    APIPublisher = 'default';
+    APIVersion = 'v2.0';
+    ApplicationArea = All;
+    Caption = 'purchaseOrders';
+    DelayedInsert = true;
+    EntityName = 'extPurchaseOrders2';
+    EntitySetName = 'extPurchaseOrders2';
+    SourceTable = "Purchase Header";
+
+    InsertAllowed = true;
+    ModifyAllowed = true;
+    DeleteAllowed = false;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(General)
+            {
+                // --- Standard Fields (read and create) ---
+                field(systemId; Rec.SystemId)
+                {
+                    Caption = 'SystemId';
+                    Editable = false; // ID is only read
+                }
+                field(no; Rec."No.")
+                {
+                    Caption = 'No.';
+                    Editable = false; // BC sets it auto
+                }
+                field(orderDate; Rec."Order Date")
+                {
+                    Caption = 'Order Date';
+                }
+                field(postingDate; Rec."Posting Date")
+                {
+                    Caption = 'Posting Date';
+                }
+                field(requestedReceiptDate; Rec."Requested Receipt Date")
+                {
+                    Caption = 'Requested Receipt Date';
+                }
+                field(vendorNumber; Rec."Buy-from Vendor No.")
+                {
+                    Caption = 'Buy-from Vendor No.';
+                }
+
+                // --- New Field ( For Integration Reference ) ---
+                field(integrationExternalReference; Rec."Integration External Reference")
+                {
+                    Caption = 'Integration External Reference';
+                }
+
+                // --- Connection to the POLs ( for "deep inser" )
+                /*
+                part(purchaseOrderLines; "Purchase Order Line")
+                {
+                    Caption = 'Purchase Order Lines';
+                    EntityName = 'purchaseOrderLine';
+                    EntitySetName = 'purchaseOrderLines';
+                    SubPageLink = "Document No." = FIELD("No.");
+                }*/
+            }
+        }
+    }
+}
