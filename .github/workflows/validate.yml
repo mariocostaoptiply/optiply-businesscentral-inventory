@@ -35,6 +35,7 @@ jobs:
             -containerName "buildcontainer" `
             -imageName "mcr.microsoft.com/businesscentral/sandbox:ltsc2022" `
             -auth NavUserPassword `
+            -credential $credential `
             -updateHosts `
             -doNotExportObjectsToText
 
