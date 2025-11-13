@@ -1,0 +1,54 @@
+name: AL-Go Build & Validate
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  al-go:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install BcContainerHelper
+        shell: pwsh
+        run: Install-Module BcContainerHelper -Force -Scope CurrentUser
+
+      - name: Build AL Project
+        shell: pwsh
+        run: |
+          New-BcContainer -accept_eula `
+            -accept_outdated `
+            -containerName "build" `
+            -imageName "mcr.microsoft.com/businesscentral/sandbox:ltsc2022" `
+            -auth NavUserPassword `
+            -updateHosts `
+            -doNotExportObjectsToText
+
+          Compile-AppInBCContainer `
+            -containerName build `
+            -appProjectFolder "$PWD/app"
+
+          Copy-BcContainerArtifact `
+            -containerName build `
+            -artifactPath "$PWD/output"
+
+      - name: Run Validation
+        shell: pwsh
+        run: |
+          Run-AlValidation `
+            -apps @("$PWD/output/*.app") `
+            -validateCurrent `
+            -countries @("w1","gb") `
+            -affixes @("hot") `
+            -supportedCountries @("w1","gb")
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-package
+          path: output/
