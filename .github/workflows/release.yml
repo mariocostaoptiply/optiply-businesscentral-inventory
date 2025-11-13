@@ -1,29 +1,41 @@
-name: Release Extension
+name: Release AL Extension
 
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 jobs:
   release:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Install BcContainerHelper
-        run: Install-Module BcContainerHelper -Force
         shell: pwsh
+        run: Install-Module BcContainerHelper -Force -Scope CurrentUser
 
-      - name: Build App
+      - name: Build App Package
         shell: pwsh
         run: |
-          New-BcContainer -accept_eula -accept_outdated -containerName "release" -imageName "mcr.microsoft.com/businesscentral/sandbox:latest" -auth NavUserPassword -updateHosts
-          Compile-AppInBCContainer -containerName release -appProjectFolder "$PWD/app"
-          Copy-BcContainerArtifact -containerName release -artifactPath "$PWD/output"
+          New-BcContainer -accept_eula `
+            -accept_outdated `
+            -containerName "release" `
+            -imageName "mcr.microsoft.com/businesscentral/sandbox:ltsc2022" `
+            -auth NavUserPassword `
+            -updateHosts
 
-      - name: Publish Release
+          Compile-AppInBCContainer `
+            -containerName release `
+            -appProjectFolder "$PWD/app"
+
+          Copy-BcContainerArtifact `
+            -containerName release `
+            -artifactPath "$PWD/output"
+
+      - name: Publish GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           files: output/*.app
