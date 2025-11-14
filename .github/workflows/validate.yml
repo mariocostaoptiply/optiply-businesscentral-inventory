@@ -1,68 +1,67 @@
 name: Validate AL Extension
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:
 
 jobs:
-  validate:
-    runs-on: windows-latest
+  validate:
+    runs-on: windows-latest
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Install BcContainerHelper
-        shell: pwsh
-        run: Install-Module BcContainerHelper -Force -Scope CurrentUser
+      - name: Install BcContainerHelper
+        shell: pwsh
+        run: Install-Module BcContainerHelper -Force -Scope CurrentUser
 
-      - name: Build AL Project
-        shell: pwsh
-        run: |
-          # Load credentials
-          $username = "${{ secrets.BC_USERNAME }}"
-          $passwordPlain = "${{ secrets.BC_PASSWORD }}"
-          $securePass = ConvertTo-SecureString $passwordPlain -AsPlainText -Force
-          $credential = New-Object System.Management.Automation.PSCredential($username, $securePass)
+      - name: Build AL Project
+        shell: pwsh
+        run: |
+          # Load credentials
+          $username = "${{ secrets.BC_USERNAME }}"
+          $passwordPlain = "${{ secrets.BC_PASSWORD }}"
+          $securePass = ConvertTo-SecureString $passwordPlain -AsPlainText -Force
+          $credential = New-Object System.Management.Automation.PSCredential($username, $securePass)
 
-          # Get BC artifact
-          $artifactUrl = Get-BcArtifactUrl -type Sandbox -version 27.1 -country w1
-          Write-Host "Using artifact: $artifactUrl"
+          # Get BC artifact
+          $artifactUrl = Get-BcArtifactUrl -type Sandbox -version 27.1 -country w1
+          Write-Host "Using artifact: $artifactUrl"
 
-          # Create container
-          New-BcContainer -accept_eula `
-            -accept_outdated `
-            -containerName "buildcontainer" `
-            -artifactUrl $artifactUrl `
-            -auth NavUserPassword `
-            -credential $credential `
-            -updateHosts `
-            -doNotExportObjectsToText `
-            -shortcuts None
+          # --- CORREÇÃO 1: Definir o caminho partilhado PRIMEIRO ---
+          $shared = "C:\Run\my\app"
 
-          # --- FIX: Copy project to a shared folder ---
-          $shared = "C:\Run\my\app"
-          New-Item -ItemType Directory -Force -Path $shared | Out-Null
-          Copy-Item -Path "$PWD/app/*" -Destination $shared -Recurse -Force
+          # Create container e partilhar a pasta
+          New-BcContainer -accept_eula `
+            -accept_outdated `
+            -containerName "buildcontainer" `
+            -artifactUrl $artifactUrl `
+            -auth NavUserPassword `
+            -credential $credential `
+            -updateHosts `
+            -doNotExportObjectsToText `
+            -shortcuts None `
+            -sharedFolders $shared # <-- ESTA É A LINHA CRÍTICA QUE FALTAVA
 
-          Write-Host "App copied to container-shared folder: $shared"
+          # Agora, criar a pasta no Host e copiar os ficheiros
+          New-Item -ItemType Directory -Force -Path $shared | Out-Null
+          Copy-Item -Path "$PWD/app/*" -Destination $shared -Recurse -Force
+          Write-Host "App copied to container-shared folder: $shared"
 
-          # Compile from shared folder
-          Compile-AppInBCContainer `
-            -containerName buildcontainer `
-            -appProjectFolder $shared `
-            -appOutputFolder "$PWD/output"
+          # Compilar da pasta partilhada
+          Compile-AppInBCContainer `
+            -containerName buildcontainer `
+            -appProjectFolder $shared `
+            -appOutputFolder "$PWD/output"
 
-          Write-Host "✔ Build completed!"
+          Write-Host "✔ Build completed!"
 
-
-
-
-      - name: Run AL Validation
-        shell: pwsh
-        run: |
-          Run-AlValidation `
-            -apps @("app/*.app") `
-            -validateCurrent `
-            -countries @("gb","w1") `
-            -affixes @("hot") `
-            -supportedCountries @("gb","w1")
+      - name: Run AL Validation
+        shell: pwsh
+        run: |
+          Run-AlValidation `
+            -apps @("output/*.app") ` # <-- CORREÇÃO 2 (A ORIGINAL)
+            -validateCurrent `
+            -countries @("gb","w1") `
+            -affixes @("hot") `
+            -supportedCountries @("gb","w1")
