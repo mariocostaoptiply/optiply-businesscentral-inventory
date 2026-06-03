@@ -52,4 +52,6 @@ jobs:
         with:
           tag_name: ${{ inputs.tag }}
           name: ${{ inputs.name || inputs.tag }}
-          files: .buildartifacts/**/*.app
+          files: |
+            .buildartifacts/Apps/*.app
+            .output/*.app

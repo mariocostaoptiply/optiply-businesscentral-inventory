@@ -53,8 +53,9 @@ jobs:
         with:
           name: al-go-build-artifacts
           path: |
-            .buildartifacts/**/*.app
-            .output/**/*
+            .buildartifacts/Apps/*.app
+            .output/*.app
             BuildOutput.txt
             ContainerEventLog.evtx
+          include-hidden-files: true
           if-no-files-found: warn
