@@ -34,11 +34,18 @@ jobs:
           shell: powershell
           project: .
 
+      - name: Determine Business Central artifact
+        uses: microsoft/AL-Go-Actions/DetermineArtifactUrl@main
+        with:
+          shell: powershell
+          project: .
+
       - name: Build AL app
         uses: microsoft/AL-Go-Actions/RunPipeline@main
         with:
           shell: powershell
           project: .
+          artifact: ${{ env.artifact }}
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
