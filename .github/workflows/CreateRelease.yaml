@@ -47,11 +47,16 @@ jobs:
           project: .
           artifact: ${{ env.artifact }}
 
+      - name: Collect app packages
+        run: |
+          New-Item -ItemType Directory -Force -Path app-packages | Out-Null
+          Get-ChildItem -Path .buildartifacts\Apps, .output -Filter *.app -ErrorAction SilentlyContinue |
+            Copy-Item -Destination app-packages -Force
+          Get-ChildItem -Path app-packages -Filter *.app | ForEach-Object { Write-Host "Collected $($_.FullName)" }
+
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ inputs.tag }}
           name: ${{ inputs.name || inputs.tag }}
-          files: |
-            .buildartifacts/Apps/*.app
-            .output/*.app
+          files: app-packages/*.app

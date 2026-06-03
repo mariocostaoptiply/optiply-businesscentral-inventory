@@ -47,15 +47,21 @@ jobs:
           project: .
           artifact: ${{ env.artifact }}
 
+      - name: Collect app packages
+        if: always()
+        run: |
+          New-Item -ItemType Directory -Force -Path app-packages | Out-Null
+          Get-ChildItem -Path .buildartifacts\Apps, .output -Filter *.app -ErrorAction SilentlyContinue |
+            Copy-Item -Destination app-packages -Force
+          Get-ChildItem -Path app-packages -Filter *.app | ForEach-Object { Write-Host "Collected $($_.FullName)" }
+
       - name: Upload compiled app packages
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: al-go-build-artifacts
+          name: app-packages
           path: |
-            .buildartifacts/Apps/*.app
-            .output/*.app
+            app-packages/*.app
             BuildOutput.txt
             ContainerEventLog.evtx
-          include-hidden-files: true
           if-no-files-found: warn
