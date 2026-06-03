@@ -1,0 +1,48 @@
+name: Create AL-Go release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag, for example v1.0.0
+        required: true
+      name:
+        description: Release name
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+  actions: read
+  id-token: write
+  packages: read
+
+jobs:
+  release:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: powershell
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Read AL-Go settings
+        uses: microsoft/AL-Go-Actions/ReadSettings@main
+        with:
+          shell: powershell
+          project: .
+
+      - name: Build AL app
+        uses: microsoft/AL-Go-Actions/RunPipeline@main
+        with:
+          shell: powershell
+          project: .
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.tag }}
+          name: ${{ inputs.name || inputs.tag }}
+          files: .buildartifacts/**/*.app

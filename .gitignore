@@ -24,6 +24,7 @@ output/
 
 # Ignore project-level junk
 .ignore/
+.pi/
 *.code-workspace
 
 # System files

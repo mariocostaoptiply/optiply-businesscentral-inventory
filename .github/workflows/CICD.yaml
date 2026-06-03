@@ -1,0 +1,53 @@
+name: AL-Go CI/CD
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main", "master", "release/*", "feature/*"]
+    paths-ignore:
+      - "**.md"
+  pull_request:
+    branches: ["main", "master"]
+
+permissions:
+  actions: read
+  contents: read
+  id-token: write
+  packages: read
+  security-events: write
+
+jobs:
+  build:
+    name: Build AL app with AL-Go
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: powershell
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Read AL-Go settings
+        uses: microsoft/AL-Go-Actions/ReadSettings@main
+        with:
+          shell: powershell
+          project: .
+
+      - name: Build AL app
+        uses: microsoft/AL-Go-Actions/RunPipeline@main
+        with:
+          shell: powershell
+          project: .
+
+      - name: Upload compiled app packages
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: al-go-build-artifacts
+          path: |
+            .buildartifacts/**/*.app
+            .output/**/*
+            BuildOutput.txt
+            ContainerEventLog.evtx
+          if-no-files-found: warn

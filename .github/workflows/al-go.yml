@@ -1,71 +1,10 @@
-name: AL-Go Build & Validate
+name: Legacy AL-Go workflow disabled
 
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
-  al-go:
-    runs-on: windows-latest
-
+  disabled:
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Install BcContainerHelper
-        shell: pwsh
-        run: Install-Module BcContainerHelper -Force -Scope CurrentUser
-
-      - name: Build AL Project
-        shell: pwsh
-        run: |
-          # Load credentials
-          $username = "${{ secrets.BC_USERNAME }}"
-          $passwordPlain = "${{ secrets.BC_PASSWORD }}"
-
-          if (-not $username -or -not $passwordPlain) {
-            throw "BC_USERNAME or BC_PASSWORD is empty — Check your GitHub Secrets."
-          }
-
-          $securePass = ConvertTo-SecureString $passwordPlain -AsPlainText -Force
-          $credential = New-Object System.Management.Automation.PSCredential($username, $securePass)
-
-
-          # Create BC container
-          New-BcContainer -accept_eula `
-            -accept_outdated `
-            -containerName "build" `
-            -imageName "mcr.microsoft.com/businesscentral/sandbox:ltsc2022" `
-            -auth NavUserPassword `
-            -credential $credential `
-            -updateHosts `
-            -doNotExportObjectsToText
-
-          # Compile AL project inside the container
-          Compile-AppInBCContainer `
-            -containerName build `
-            -appProjectFolder "$PWD/app" `
-            -appOutputFolder "$PWD/output"
-
-          # Copy artifact (.app file) to output folder
-          Copy-BcContainerArtifact `
-            -containerName build `
-            -artifactPath "$PWD/output"
-
-      - name: Run Validation
-        shell: pwsh
-        run: |
-          Run-AlValidation `
-            -apps @("$PWD/output/*.app") `
-            -validateCurrent `
-            -countries @("w1","gb") `
-            -affixes @("hot") `
-            -supportedCountries @("w1","gb")
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-package
-          path: output/
+      - run: echo "Disabled. Use .github/workflows/CICD.yaml instead."
