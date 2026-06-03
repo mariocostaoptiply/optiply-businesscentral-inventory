@@ -1,6 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/microsoft/AL-Go-Actions/main/.Modules/settings.schema.json",
-  "country": "w1",
+  "country": "nl",
+  "artifact": "bcartifacts/sandbox/27.5/nl/latest",
   "appFolders": [
     "app"
   ],

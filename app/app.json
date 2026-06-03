@@ -1,11 +1,11 @@
 {
   "id": "3c4d4be5-ab78-4f67-a3c4-09903fd8754d",
-  "name": "Hotglue Business Central Integration",
-  "publisher": "Hotglue Open Source",
+  "name": "Business Central Integration",
+  "publisher": "Optiply Open Source",
   "version": "1.0.0.0",
 
   "brief": "Provides extended APIs and data endpoints for integrating Microsoft Dynamics 365 Business Central with external platforms.",
-  "description": "This open-source extension enables advanced integrations between Microsoft Dynamics 365 Business Central and external systems such as Hotglue ETL pipelines. It provides a modular architecture for exposing additional APIs, queries, and tables — starting with inventory data (Items, Variants, and Locations) and designed to support future extensions for sales, purchasing, and other business domains.",
+  "description": "This open-source extension enables advanced integrations between Microsoft Dynamics 365 Business Central and external systems such as Optiply integration pipelines. It provides a modular architecture for exposing additional APIs, queries, and tables — starting with inventory data (Items, Variants, and Locations) and designed to support future extensions for sales, purchasing, and other business domains.",
   "privacyStatement": "",
   "EULA": "",
   "help": "https://github.com/mariocostaoptiply/hotglue-businesscentral-inventory/tree/master",

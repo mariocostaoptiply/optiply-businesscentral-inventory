@@ -1,11 +1,11 @@
 /// <summary>
-/// Implements the API objects and logic for the Hotglue ↔ Business Central integration.
+/// Implements the API objects and logic for the Optiply ↔ Business Central integration.
 /// </summary>
 /// <remarks>
 /// This module exposes calculated inventory data per item, variant, and location.
-/// Includes FlowField extensions, queries, and API pages for synchronization with Hotglue ETL.
+/// Includes FlowField extensions, queries, and API pages for synchronization with Optiply ETL.
 /// </remarks>
-namespace Hotglue.BusinessCentral.Inventory;
+namespace Optiply.BusinessCentral.Inventory;
 
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Item;

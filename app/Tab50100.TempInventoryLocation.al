@@ -1,18 +1,18 @@
 /// <summary>
-/// Implements the API objects and logic for the Hotglue ↔ Business Central integration.
+/// Implements the API objects and logic for the Optiply ↔ Business Central integration.
 /// </summary>
 /// <remarks>
 /// This module exposes calculated inventory data per item, variant, and location.
-/// Includes FlowField extensions, queries, and API pages for synchronization with Hotglue ETL.
+/// Includes FlowField extensions, queries, and API pages for synchronization with Optiply ETL.
 /// </remarks>
-namespace Hotglue.BusinessCentral.Inventory;
+namespace Optiply.BusinessCentral.Inventory;
 
 /// <summary>
 /// Temporary table that stores stock information grouped by Item, Variant, and Location.
 /// </summary>
 /// <remarks>
 /// This table is used as an intermediate data structure for inventory calculations
-/// and synchronization with external systems such as Hotglue.  
+/// and synchronization with external systems such as Optiply.  
 /// It is defined as <c>Temporary</c>, meaning that records only exist in memory during the session.
 /// Each record represents the latest entry information and aggregated inventory
 /// for a specific Item/Variant/Location combination.

@@ -1,7 +1,7 @@
-# Hotglue ↔ Business Central Integration Extension
+# Optiply Business Central Integration Extension
 
 Open-source extension developed by **Optiply** to expose enriched inventory data
-(Item + Variant + Location) for integration pipelines (Hotglue / ETL / custom APIs).
+(Item + Variant + Location) for integration pipelines (Optiply / ETL / custom APIs).
 
 ## Features
 

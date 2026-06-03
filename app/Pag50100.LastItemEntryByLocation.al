@@ -1,11 +1,11 @@
 /// <summary>
-/// Implements the API objects and logic for the Hotglue ↔ Business Central integration.
+/// Implements the API objects and logic for the Optiply ↔ Business Central integration.
 /// </summary>
 /// <remarks>
 /// This module exposes calculated inventory data per item, variant, and location.
-/// Includes FlowField extensions, queries, and API pages for synchronization with Hotglue ETL.
+/// Includes FlowField extensions, queries, and API pages for synchronization with Optiply ETL.
 /// </remarks>
-namespace Hotglue.BusinessCentral.Inventory;
+namespace Optiply.BusinessCentral.Inventory;
 
 using Microsoft.Inventory.Ledger;
 
@@ -19,7 +19,7 @@ using Microsoft.Inventory.Ledger;
 /// the <c>Stock By IVL</c> FlowField from the "Item Ledger Entry" table.  
 /// The data is populated into the temporary table <c>Temp Stock by IVL</c>
 /// and made available through an OData/REST API endpoint for external integrations
-/// such as Hotglue.
+/// such as Optiply.
 /// </remarks>
 page 50100 "Inventory Location Query"
 {
@@ -30,7 +30,7 @@ page 50100 "Inventory Location Query"
     UsageCategory = Lists;
 
     PageType = API;
-    APIPublisher = 'hotglue';
+    APIPublisher = 'optiply';
     APIGroup = 'integration';
     APIVersion = 'v1.0';
     EntityName = 'inventoryByLocation';
