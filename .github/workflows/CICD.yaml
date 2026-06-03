@@ -67,8 +67,14 @@ jobs:
             ContainerEventLog.evtx
           if-no-files-found: warn
 
+      - name: Create release archive
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          $tag = "${{ github.ref_name }}"
+          Compress-Archive -Path app-packages\*.app -DestinationPath "optiply-businesscentral-inventory-$tag.zip" -Force
+
       - name: Create GitHub release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: app-packages/*.app
+          files: optiply-businesscentral-inventory-${{ github.ref_name }}.zip
