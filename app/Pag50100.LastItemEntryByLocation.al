@@ -21,7 +21,7 @@ using Microsoft.Inventory.Ledger;
 /// and made available through an OData/REST API endpoint for external integrations
 /// such as Optiply.
 /// </remarks>
-page 50100 "Inventory Location Query"
+page 70200000 "Inventory Location Query"
 {
 
     Caption = 'Inventory By Location    ';
