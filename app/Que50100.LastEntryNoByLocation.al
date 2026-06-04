@@ -21,7 +21,7 @@ using Microsoft.Inventory.Item;
 /// It also joins the related Item and Item Variant records to include
 /// their descriptions and system identifiers.
 /// </remarks>
-query 70200000 "Last Entry By IVL"
+query 99900 "Last Entry By IVL"
 {
     Caption = 'Last Entry By IVL Query';
 

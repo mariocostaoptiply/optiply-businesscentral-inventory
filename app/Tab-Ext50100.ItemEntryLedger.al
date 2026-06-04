@@ -19,11 +19,11 @@ using Microsoft.Inventory.Ledger;
 /// This allows for efficient retrieval of stock levels grouped by these dimensions
 /// without requiring external queries or code calculations.
 /// </remarks>
-tableextension 70200002 "Entry Ledger Stock IVL" extends "Item Ledger Entry"
+tableextension 99902 "Entry Ledger Stock IVL" extends "Item Ledger Entry"
 {
     fields
     {
-        field(70200000; "Stock By IVL"; Decimal)
+        field(99900; "Stock By IVL"; Decimal)
         {
             Caption = 'Item Entry Ledger Stock by IVL';
             FieldClass = FlowField;

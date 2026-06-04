@@ -17,7 +17,7 @@ namespace Optiply.BusinessCentral.Inventory;
 /// Each record represents the latest entry information and aggregated inventory
 /// for a specific Item/Variant/Location combination.
 /// </remarks>
-table 70200000 "Temp Stock by IVL"
+table 99900 "Temp Stock by IVL"
 {
     Caption = 'Temp Stock by IVL Table';
     DataClassification = CustomerContent;
